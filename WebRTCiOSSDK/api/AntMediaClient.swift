@@ -288,6 +288,8 @@ open class AntMediaClient: NSObject, AntMediaClientProtocol {
             rtcAudioSession.lockForConfiguration()
             do {
                 try rtcAudioSession.overrideOutputAudioPort(.speaker)
+                try rtcAudioSession.session.overrideOutputAudioPort(.speaker)
+                try rtcAudioSession.session.setActive(true)
                 try rtcAudioSession.setActive(true)
             } catch let error {
                 AntMediaClient.printf("Couldn't force audio to speaker: \(error)")

@@ -303,7 +303,6 @@ open class AntMediaClient: NSObject, AntMediaClientProtocol {
             rtcAudioSession.lockForConfiguration()
             do {
                 try rtcAudioSession.overrideOutputAudioPort(.none)
-                try rtcAudioSession.setActive(true)
             } catch let error {
                 debugPrint("Error setting AVAudioSession category: \(error)")
             }

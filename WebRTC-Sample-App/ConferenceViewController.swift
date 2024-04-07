@@ -221,6 +221,5 @@ extension ConferenceViewController: AntMediaClientDelegate {
     public func videoView(_ videoView: RTCVideoRenderer, didChangeVideoSize size: CGSize) {
         AntMediaClient.printf("Video size changed to " + String(Int(size.width)) + "x" + String(Int(size.height)) + ". These changes are not handled in Simulator for now")
     }
-    
 }
 

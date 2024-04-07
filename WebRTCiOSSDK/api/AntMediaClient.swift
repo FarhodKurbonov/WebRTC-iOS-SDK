@@ -757,6 +757,15 @@ open class AntMediaClient: NSObject, AntMediaClientProtocol {
         }
     }
     
+    func sendCommand(command: String, streamId: String) {
+        let command =  [
+            COMMAND: command,
+            STREAM_ID: self.getStreamId()
+        ].json;
+        
+        webSocket?.write(string: command)
+    }
+    
     public func getAudioLevel(streamId: String? = nil, _ completion: @escaping (Double) -> Void) {
         getStats(completionHandler:  { [weak self] stat in
             guard let safe = self else {
@@ -818,6 +827,14 @@ open class AntMediaClient: NSObject, AntMediaClientProtocol {
         if let streamId = self.publisherStreamId {
             self.sendNotification(eventType: eventType, streamId:streamId);
         }
+    }
+    
+    public func getBroadcastObject(forStreamId id: String) {
+        AntMediaClient.printf("GetBroadcastObject for \(id)")
+        sendCommand(
+            command: GET_BROADCAST_OBJECT_COMMAND,
+            streamId: id
+        )
     }
     
     open func setVideoTrack(enableTrack: Bool)
@@ -1133,6 +1150,14 @@ open class AntMediaClient: NSObject, AntMediaClientProtocol {
                 let streamInfoList = message[STREAM_LIST_IN_ROOM] as? [Any] ?? []
                 self.joinedRoom(streamId: streamId, streams:streams, streamInfoList: streamInfoList);
             }
+            else if definition == BROADCAST_OBJECT_NOTIFICATION { // broadcastObject
+                let broadcastString = message["broadcast"] as! String
+                let broadcastObject = broadcastString.toJSON()
+                self.delegate?.onLoadBroadcastObject(
+                    streamId: message[STREAM_ID] as! String,
+                    message: broadcastObject ?? [:]
+                )
+            }
         case "connectWithNewId":
             let jsonString = getHandshakeMessage(streamId: self.getStreamId(), mode: AntMediaClientMode.join)
             webSocket?.write(string: jsonString)
@@ -1249,9 +1274,9 @@ open class AntMediaClient: NSObject, AntMediaClientProtocol {
         return request
     }
     
-    public static func printf(_ msg: String) {
+    public static func printf(_ msg: Any) {
         if (AntMediaClient.isDebug) {
-            debugPrint("--> AntMediaSDK: " + msg)
+            debugPrint("--> AntMediaSDK: ", msg)
         }
     }
     
@@ -1414,6 +1439,7 @@ extension AntMediaClient: WebRTCClientDelegate {
         
         let rawJSON = String(decoding: data.data, as: UTF8.self)
         let json = rawJSON.toJSON();
+        let streamId = json?[STREAM_ID] as! String
         
         if let eventType = json?[EVENT_TYPE] {
             if showLogAllDataComingFromDataChannel {
@@ -1440,8 +1466,24 @@ extension AntMediaClient: WebRTCClientDelegate {
                 }
             }
             
+            if eventType as? String == EVENT_TYPE_TRACK_LIST_UPDATED {
+                self.delegate?.trackListUpdated(
+                    streamId: streamId,
+                    value: json ?? [:]
+                )
+            }
+            
             //event happened
-            self.delegate?.eventHappened(streamId:json?[STREAM_ID] as! String, eventType:eventType as! String);
+            self.delegate?.eventHappened(
+                streamId: streamId,
+                eventType: eventType as! String
+            )
+            
+            self.delegate?.eventHappened(
+                streamId: streamId,
+                eventType: eventType as! String,
+                payload: json
+            )
         }
         else {
             self.delegate?.dataReceivedFromDataChannel(streamId: streamId, data: data.data, binary: data.isBinary);

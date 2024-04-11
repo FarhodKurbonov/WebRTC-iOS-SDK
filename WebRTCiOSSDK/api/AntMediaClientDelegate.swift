@@ -167,9 +167,15 @@ public protocol AntMediaClientDelegate: AnyObject {
     func streamsLeft(streams: [String]);
     
     func onLoadBroadcastObject(streamId: String, message: [String: Any])
+    
+    func audioLevelChanged(streamId: String, value:Double)
 }
 
 public extension AntMediaClientDelegate {
+    func audioLevelChanged(streamId: String, value:Double) {
+        
+    }
+    
     func trackListUpdated(streamId: String, value: [String: Any]) {
         
     }

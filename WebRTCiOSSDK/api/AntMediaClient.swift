@@ -1575,13 +1575,10 @@ extension AntMediaClient: WebSocketDelegate {
     }
 }
 
-extension AntMediaClient: RTCAudioSessionDelegate
-{
-    
+extension AntMediaClient: RTCAudioSessionDelegate {
     public func audioSessionDidStartPlayOrRecord(_ session: RTCAudioSession) {
         self.delegate?.audioSessionDidStartPlayOrRecord(streamId: self.getStreamId())
     }
-    
 }
 
 /*

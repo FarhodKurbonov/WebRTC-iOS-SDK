@@ -73,6 +73,7 @@ open class AntMediaClient: NSObject, AntMediaClientProtocol {
     private var wsUrl: String!
     private(set) var publisher: AntPeer?
     public var showLogAllDataComingFromDataChannel = false
+    public var showLogAudioLevelComingFromDataChannel = false
     
     private var publisherStreamId: String? {
         publisher?.streamId
@@ -1383,6 +1384,9 @@ open class AntMediaClient: NSObject, AntMediaClientProtocol {
         
     }
     
+    deinit {
+        AntMediaClient.printf("AntMediaClient deinit")
+    }
 }
 
 extension AntMediaClient: WebRTCClientDelegate {
@@ -1441,14 +1445,18 @@ extension AntMediaClient: WebRTCClientDelegate {
         let json = rawJSON.toJSON();
         let streamId = json?[STREAM_ID] as! String
         
-        if let eventType = json?[EVENT_TYPE] {
-            if showLogAllDataComingFromDataChannel {
+        if let eventType = json?[EVENT_TYPE] as? String {
+            if showLogAudioLevelComingFromDataChannel {
+                debugPrint("Data channel received an event \(eventType) - \(json ?? [:])")
+            }
+            
+            if showLogAllDataComingFromDataChannel && eventType != AUDIO_LEVEL_CHANGED {
                 debugPrint("Data channel received an event \(eventType) - \(json ?? [:])")
             }
             
             let streamId = json?[STREAM_ID] as! String
             
-            if eventType as? String == UPDATE_STATUS {
+            if eventType == UPDATE_STATUS {
                 if let mic = json?[STATUS_MIC] {
                     self.delegate?.statusChangedMic(streamId: streamId, value: mic as? Bool ?? false)
                 }
@@ -1466,14 +1474,14 @@ extension AntMediaClient: WebRTCClientDelegate {
                 }
             }
             
-            if eventType as? String == EVENT_TYPE_TRACK_LIST_UPDATED {
+            if eventType == EVENT_TYPE_TRACK_LIST_UPDATED {
                 self.delegate?.trackListUpdated(
                     streamId: streamId,
                     value: json ?? [:]
                 )
             }
             
-            if eventType as? String == AUDIO_LEVEL_CHANGED {
+            if eventType == AUDIO_LEVEL_CHANGED {
                 if let audioLevel = json?[AUDIO_LEVEL] as? Double {
                     self.delegate?.audioLevelChanged(streamId: streamId, value: audioLevel)
                 }
@@ -1484,12 +1492,12 @@ extension AntMediaClient: WebRTCClientDelegate {
             //event happened
             self.delegate?.eventHappened(
                 streamId: streamId,
-                eventType: eventType as! String
+                eventType: eventType
             )
             
             self.delegate?.eventHappened(
                 streamId: streamId,
-                eventType: eventType as! String,
+                eventType: eventType,
                 payload: json
             )
         }

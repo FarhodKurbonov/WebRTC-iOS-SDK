@@ -21,6 +21,7 @@ class WebRTCClient: NSObject {
     private static var factory: RTCPeerConnectionFactory! = nil;
     
     weak var delegate: WebRTCClientDelegate?
+    weak var dataChannelStateDelegate: WebRTCDataChannelStateDelegate?
     var peerConnection : RTCPeerConnection?
     
     private var videoCapturer: RTCVideoCapturer?
@@ -468,15 +469,19 @@ extension WebRTCClient: RTCDataChannelDelegate
     func dataChannelDidChangeState(_ parametersdataChannel: RTCDataChannel)  {
         if (parametersdataChannel.readyState == .open) {
             AntMediaClient.printf("Data channel state is open \(parametersdataChannel.channelId)")
+            dataChannelStateDelegate?.onDataChannelOpened(streamId: self.streamId)
         }
         else if  (parametersdataChannel.readyState == .connecting) {
             AntMediaClient.printf("Data channel state is connecting \(parametersdataChannel.channelId)")
+            dataChannelStateDelegate?.onDataChannelConnecting(streamId: self.streamId)
         }
         else if  (parametersdataChannel.readyState == .closing) {
             AntMediaClient.printf("Data channel state is closing \(parametersdataChannel.channelId)")
+            dataChannelStateDelegate?.onDataChannelClosing(streamId: self.streamId)
         }
         else if  (parametersdataChannel.readyState == .closed) {
             AntMediaClient.printf("Data channel state is closed \(parametersdataChannel.channelId)")
+            dataChannelStateDelegate?.onDataChannelClosed(streamId: self.streamId)
         }
     }
     

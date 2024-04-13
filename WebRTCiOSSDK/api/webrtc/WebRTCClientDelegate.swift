@@ -38,3 +38,20 @@ internal protocol WebRTCClientDelegate: AnyObject {
     
     func dataReceivedFromDataChannel(didReceiveData data: RTCDataBuffer, streamId:String);
 }
+
+internal protocol WebRTCDataChannelStateDelegate: AnyObject {
+    func onDataChannelOpened(streamId:String)
+    
+    func onDataChannelClosed(streamId:String)
+    
+    func onDataChannelConnecting(streamId:String)
+    
+    func onDataChannelClosing(streamId:String)
+}
+
+extension WebRTCDataChannelStateDelegate {
+    func onDataChannelOpened(streamId:String) {}
+    func onDataChannelClosed(streamId:String) {}
+    func onDataChannelConnecting(streamId:String) {}
+    func onDataChannelClosing(streamId:String) {}
+}

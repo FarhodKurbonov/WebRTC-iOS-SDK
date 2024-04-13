@@ -488,8 +488,6 @@ extension WebRTCClient: RTCDataChannelDelegate
     func dataChannel(_ dataChannel: RTCDataChannel, didChangeBufferedAmount amount: UInt64) {
         
     }
-    
-    
 }
 
 extension WebRTCClient: RTCPeerConnectionDelegate {

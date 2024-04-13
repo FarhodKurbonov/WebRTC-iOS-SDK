@@ -104,9 +104,12 @@ open class AntMediaClient: NSObject, AntMediaClientProtocol {
     
     var roomInfoGetterTimer: Timer?;
     
-    
     //private var webRTCClient: WebRTCClient?;
     var webRTCClientMap: [String: WebRTCClient] = [:]
+    
+    var publisherWebRTC: WebRTCClient? {
+        webRTCClientMap[getPublisherStreamId()]
+    }
     
     private var localView: RTCVideoRenderer?
     private var remoteView: RTCVideoRenderer?
@@ -1652,6 +1655,10 @@ extension AntMediaClient {
         audioPorts.forEach { port in
             audioRouteDelegate?.audioRouteChange(type: port.portType, name: port.portName, reason: reason)
         }
+    }
+    
+    public func setPublisherChannelDelegate(_ delegate: WebRTCDataChannelStateDelegate) {
+        self.publisherWebRTC?.dataChannelStateDelegate = delegate
     }
 }
 

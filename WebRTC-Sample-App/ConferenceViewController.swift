@@ -45,7 +45,7 @@ open class ConferenceViewController: UIViewController , AVCaptureVideoDataOutput
     {
         #if arch(arm64)
         let localRenderer = RTCMTLVideoView(frame: view.frame)
-        localRenderer.videoContentMode =  .scaleAspectFit
+        localRenderer.videoContentMode = .scaleAspectFit
         #else
         let localRenderer = RTCEAGLVideoView(frame: view.frame)
         localRenderer.delegate = self
@@ -57,12 +57,9 @@ open class ConferenceViewController: UIViewController , AVCaptureVideoDataOutput
         AntMediaClient.embedView(localRenderer, into: view)
         remoteViews.append(localRenderer)
         remoteViewTrackMap.append(nil);
-       
     }
     
-    open override func viewWillAppear(_ animated: Bool)
-    {
-        
+    open override func viewWillAppear(_ animated: Bool) {
         //init renderers because front end manage the viewers
         initRenderer(view: remoteView0)
         initRenderer(view: remoteView1)
@@ -84,8 +81,6 @@ open class ConferenceViewController: UIViewController , AVCaptureVideoDataOutput
         
         //stop publishing
         self.conferenceClient?.stop(streamId: self.publisherStreamId);
-
-        
     }
     
     public func removePlayers() {
@@ -120,6 +115,7 @@ extension ConferenceViewController: AntMediaClientDelegate {
     public func clientDidDisconnect(_ message: String) {
         removePlayers();
     }
+    
     public func playStarted(streamId: String) {
         print("play started");
         AntMediaClient.speakerOn();
@@ -145,9 +141,11 @@ extension ConferenceViewController: AntMediaClientDelegate {
             
         }
         
-        AntMediaClient.printf("Track is added with id:\(track.trackId) and stream id:\(streamId)")
-        if let videoTrack = track as? RTCVideoTrack
-        {
+        AntMediaClient.printf(
+            "Track is added with id:\(track.trackId) and stream id:\(streamId)"
+        )
+        
+        if let videoTrack = track as? RTCVideoTrack {
             //find the view to render
             var i = 0;
             while (i < remoteViewTrackMap.count) {
